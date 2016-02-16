@@ -54,8 +54,5 @@
 	<storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
 	<storageModule moduleId="scannerConfiguration">
 		<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
-		<scannerConfigBuildInfo instanceId="cdt.managedbuild.toolchain.gnu.base.1863219224;cdt.managedbuild.toolchain.gnu.base.1863219224.1743780757;cdt.managedbuild.tool.gnu.c.compiler.base.1396826940;cdt.managedbuild.tool.gnu.c.compiler.input.1366159483">
-			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
-		</scannerConfigBuildInfo>
 	</storageModule>
 </cproject>

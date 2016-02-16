@@ -1,9 +1,15 @@
-all: main
+all: trilateration
 
-main: main.o
-	gcc main.o -lm -o main
+main: trilateration.o
+	gcc trilateration.o -lm -o trilateration
 	@echo Compilation finie.
 
+<<<<<<< HEAD
+=======
+clean:
+	rm -f trilateration *.o
+
+>>>>>>> branch 'master' of https://github.com/DroneBucket/Drone_Bucket_Trilateration_Algorithm.git
 %.o: %.c
 	gcc -c -Wall -ansi $<
 

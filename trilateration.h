@@ -42,7 +42,6 @@ int trilateration(coordinate * const result1, coordinate * const result2,
 struct coordinate getResult(const coordinate result1, const coordinate result2,
 		const coordinate oldPosition);
 
-double ComputeDistance(struct coordinate a, struct coordinate b);
 
 #endif /* TRILATERATION_H_ */
 

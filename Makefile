@@ -1,11 +1,8 @@
-all: trilateration
+all: main
 
-main: trilateration.o
-	gcc trilateration.o -lm -o trilateration
+main: main.o
+	gcc main.o -o main -lm
 	@echo Compilation finie.
-
-clean:
-	rm -f trilateration *.o
 
 %.o: %.c
 	gcc -c -Wall -ansi $<

@@ -1,15 +1,7 @@
 #include <stdio.h>
 #include <math.h>
 
-/* Largest nonnegative number still considered zero */
-#define   MAXZERO  0.0
-
-typedef struct coordinate coordinate;
-struct coordinate {
-	double	x;
-	double	y;
-	double	z;
-};
+#include "trilateration.h"
 
 /* Return the difference of two vectors, (vector1 - vector2). */
 coordinate vdiff(const coordinate vector1, const coordinate vector2)

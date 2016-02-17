@@ -1,11 +1,11 @@
-all: main
+all: trilateration
 
-main: main.o
-	gcc main.o -o main -lm
+trilateration: trilateration.o
+	gcc trilateration.o -o trilateration -lm
 	@echo Compilation finie.
 
 %.o: %.c
 	gcc -c -Wall -ansi $<
 
 clean:
-	rm -f main *.o
+	rm -f trilateration *.o

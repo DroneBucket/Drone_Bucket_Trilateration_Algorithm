@@ -5,7 +5,7 @@ trilateration: trilateration.o
 	@echo Compilation finie.
 
 %.o: %.c
-	gcc -c -Wall -ansi $<
+	gcc -c -Wall  -std=c99 $<
 
 clean:
 	rm -f trilateration *.o

@@ -6,9 +6,9 @@
 
 typedef struct coordinate coordinate;
 struct coordinate {
-	double x;
-	double y;
-	double z;
+	float  x;
+	float  y;
+	float  z;
 };
 
 /* Return the difference of two vectors, (vector1 - vector2). */
@@ -18,26 +18,26 @@ coordinate vdiff(const coordinate vector1, const coordinate vector2);
 coordinate vsum(const coordinate vector1, const coordinate vector2);
 
 /* Multiply vector by a number. */
-coordinate vmul(const coordinate vector, const double n);
+coordinate vmul(const coordinate vector, const float  n);
 
-coordinate vadd(const coordinate vector, const double n);
+coordinate vadd(const coordinate vector, const float  n);
 
 /* Divide vector by a number. */
-coordinate vdiv(const coordinate vector, const double n);
+coordinate vdiv(const coordinate vector, const float  n);
 
 /* Return the Euclidean norm. */
-double vnorm(const coordinate vector);
+float  vnorm(const coordinate vector);
 
 /* Return the dot product of two vectors. */
-double dot(const coordinate vector1, const coordinate vector2);
+float  dot(const coordinate vector1, const coordinate vector2);
 
 /* Replace vector with its cross product with another vector. */
 coordinate cross(const coordinate vector1, const coordinate vector2);
 
 int trilateration(coordinate * const result1, coordinate * const result2,
-		const coordinate p1, const double r1, const coordinate p2,
-		const double r2, const coordinate p3, const double r3,
-		const double maxzero);
+		const coordinate p1, const float  r1, const coordinate p2,
+		const float  r2, const coordinate p3, const float  r3,
+		const float  maxzero);
 
 struct coordinate getResult(const coordinate result1, const coordinate result2,
 		const coordinate oldPosition);

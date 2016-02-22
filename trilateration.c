@@ -24,14 +24,14 @@ coordinate vsum(const coordinate vector1, const coordinate vector2) {
 }
 
 /* Multiply vector by a number. */
-coordinate vmul(const coordinate vector, const double n) {
+coordinate vmul(const coordinate vector, const float  n) {
 	coordinate v;
 	v.x = vector.x * n;
 	v.y = vector.y * n;
 	v.z = vector.z * n;
 	return v;
 }
-coordinate vadd(const coordinate vector, const double n) {
+coordinate vadd(const coordinate vector, const float  n) {
 	coordinate v;
 	v.x = vector.x + n;
 	v.y = vector.y + n;
@@ -45,7 +45,7 @@ coordinate vadd(const coordinate vector, const double n) {
 }
 
 /* Divide vector by a number. */
-coordinate vdiv(const coordinate vector, const double n) {
+coordinate vdiv(const coordinate vector, const float  n) {
 	coordinate v;
 	v.x = vector.x / n;
 	v.y = vector.y / n;
@@ -54,12 +54,12 @@ coordinate vdiv(const coordinate vector, const double n) {
 }
 
 /* Return the Euclidean norm. */
-double vnorm(const coordinate vector) {
+float  vnorm(const coordinate vector) {
 	return sqrt(vector.x * vector.x + vector.y * vector.y + vector.z * vector.z);
 }
 
 /* Return the dot product of two vectors. */
-double dot(const coordinate vector1, const coordinate vector2) {
+float  dot(const coordinate vector1, const coordinate vector2) {
 	return vector1.x * vector2.x + vector1.y * vector2.y + vector1.z * vector2.z;
 }
 
@@ -77,11 +77,11 @@ coordinate cross(const coordinate vector1, const coordinate vector2) {
  * it is somewhat analoguous to machine epsilon (but inclusive).
  */
 int trilateration(coordinate * const result1, coordinate * const result2,
-		const coordinate p1, const double r1, const coordinate p2,
-		const double r2, const coordinate p3, const double r3,
-		const double maxzero) {
+		const coordinate p1, const float  r1, const coordinate p2,
+		const float  r2, const coordinate p3, const float  r3,
+		const float  maxzero) {
 	coordinate ex, ey, ez, t1, t2;
-	double h, i, j, x, y, z, t;
+	float  h, i, j, x, y, z, t;
 
 	/* h = |p2 - p1|, ex = (p2 - p1) / |p2 - p1| */
 	ex = vdiff(p2, p1);
@@ -176,11 +176,11 @@ struct coordinate getResult(const coordinate result1, const coordinate result2,
 	} else if (result2.z < 0) {
 		return result1;
 	} else {
-		double dist1 = sqrt(
+		float  dist1 = sqrt(
 				pow(result1.x - oldPosition.x, 2)
 						+ pow(result1.y - oldPosition.y, 2)
 						+ pow(result1.z - oldPosition.z, 2));
-		double dist2 = sqrt(
+		float  dist2 = sqrt(
 				pow(result2.x - oldPosition.x, 2)
 						+ pow(result2.y - oldPosition.y, 2)
 						+ pow(result2.z - oldPosition.z, 2));
@@ -192,18 +192,18 @@ struct coordinate getResult(const coordinate result1, const coordinate result2,
 	}
 }
 
-double ComputeDistance(struct coordinate a, struct coordinate b) {
-	double result = 0.0;
-	double x = pow(a.x - b.x, 2);
-	double y = pow(a.y - b.y, 2);
-	double z = pow(a.z - b.z, 2);
+float  ComputeDistance(struct coordinate a, struct coordinate b) {
+	float  result = 0.0;
+	float  x = pow(a.x - b.x, 2);
+	float  y = pow(a.y - b.y, 2);
+	float  z = pow(a.z - b.z, 2);
 	result = sqrt(x + y + z);
 	return result;
 }
 
 int main(void) {
 	/*coordinate	p1, p2, p3, o1, o2;
-	 double	r1, r2, r3;
+	 float 	r1, r2, r3;
 	 int	result;
 
 	 while (fscanf(stdin, "%lg %lg %lg %lg %lg %lg %lg %lg %lg %lg %lg %lg",
@@ -230,7 +230,7 @@ int main(void) {
 	srand(time(NULL));
 	int maxValue = 320;
 	struct coordinate target, terms[3], oldTarget;
-	double distance[3];
+	float  distance[3];
 	int i;
 	struct coordinate o1, o2, result;
 	target.x = rand() % maxValue;
@@ -250,7 +250,7 @@ int main(void) {
 
 	}
 	oldTarget = target;
-	for (i = 0; i < 1000000; i++) {
+	for (i = 0; i < 1000; i++) {
 
 		trilateration(&o1, &o2, terms[0], distance[0], terms[1], distance[1],
 				terms[2], distance[2], MAXZERO);

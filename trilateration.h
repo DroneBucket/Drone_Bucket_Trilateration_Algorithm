@@ -6,42 +6,47 @@
 
 typedef struct coordinate coordinate;
 struct coordinate {
-	float  x;
-	float  y;
-	float  z;
+	float x;
+	float y;
+	float z;
 };
-
 /* Return the difference of two vectors, (vector1 - vector2). */
-coordinate vdiff(const coordinate vector1, const coordinate vector2);
+void vdiff( coordinate vector1,  coordinate vector2, coordinate * result);
 
 /* Return the sum of two vectors. */
-coordinate vsum(const coordinate vector1, const coordinate vector2);
+void vsum( coordinate vector1,  coordinate vector2, coordinate * result);
 
 /* Multiply vector by a number. */
-coordinate vmul(const coordinate vector, const float  n);
-
-coordinate vadd(const coordinate vector, const float  n);
+void vmul(coordinate vector, coordinate * result, float n);
 
 /* Divide vector by a number. */
-coordinate vdiv(const coordinate vector, const float  n);
+void vdiv( coordinate * vector,  float n);
 
 /* Return the Euclidean norm. */
-float  vnorm(const coordinate vector);
+void vnorm( coordinate vector, float * result);
 
 /* Return the dot product of two vectors. */
-float  dot(const coordinate vector1, const coordinate vector2);
+void dot( coordinate vector1,  coordinate vector2, float * result);
 
 /* Replace vector with its cross product with another vector. */
-coordinate cross(const coordinate vector1, const coordinate vector2);
+void cross( coordinate vector1,  coordinate vector2, coordinate * result);
 
-int trilateration(coordinate * const result1, coordinate * const result2,
-		const coordinate p1, const float  r1, const coordinate p2,
-		const float  r2, const coordinate p3, const float  r3,
-		const float  maxzero);
+void computeDistance(struct coordinate a, struct coordinate b, float *distance);
 
-struct coordinate getResult(const coordinate result1, const coordinate result2,
-		const coordinate oldPosition);
+void vadd(coordinate * vector,int n);
+
+/* Return zero if successful, negative error otherwise.
+ * The last parameter is the largest nonnegative number considered zero;
+ * it is somewhat analoguous to machine epsilon (but inclusive).
+ */
+int trilateration(coordinate *  result1, coordinate *  result2,
+		coordinate p1,  float r1,  coordinate p2,
+		float r2,  coordinate p3,  float r3,
+		float maxzero);
+
+struct coordinate getResult( coordinate result1,  coordinate result2, coordinate oldPosition);
+
+void test(coordinate terms[], coordinate * oldTarget, coordinate * target);
 
 
 #endif /* TRILATERATION_H_ */
-

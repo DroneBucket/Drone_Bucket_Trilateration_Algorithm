@@ -1,189 +1,184 @@
 #include <stdio.h>
 #include <math.h>
-#include <stdlib.h>
-#include <time.h>
 
 #include "trilateration.h"
 
 /* Return the difference of two vectors, (vector1 - vector2). */
-coordinate vdiff(const coordinate vector1, const coordinate vector2) {
-	coordinate v;
-	v.x = vector1.x - vector2.x;
-	v.y = vector1.y - vector2.y;
-	v.z = vector1.z - vector2.z;
-	return v;
+void vdiff( coordinate vector1,  coordinate vector2, coordinate * result) {
+	result->x = vector1.x - vector2.x;
+	result->y = vector1.y - vector2.y;
+	result->z = vector1.z - vector2.z;
 }
 
 /* Return the sum of two vectors. */
-coordinate vsum(const coordinate vector1, const coordinate vector2) {
-	coordinate v;
-	v.x = vector1.x + vector2.x;
-	v.y = vector1.y + vector2.y;
-	v.z = vector1.z + vector2.z;
-	return v;
+void vsum( coordinate vector1,  coordinate vector2, coordinate * result) {
+	result->x = vector1.x + vector2.x;
+	result->y = vector1.y + vector2.y;
+	result->z = vector1.z + vector2.z;
 }
 
 /* Multiply vector by a number. */
-coordinate vmul(const coordinate vector, const float  n) {
-	coordinate v;
-	v.x = vector.x * n;
-	v.y = vector.y * n;
-	v.z = vector.z * n;
-	return v;
-}
-coordinate vadd(const coordinate vector, const float  n) {
-	coordinate v;
-	v.x = vector.x + n;
-	v.y = vector.y + n;
-	if (vector.z + n < 0) {
-		v.z = vector.z + fabs(n);
-	} else {
-		v.z = vector.z + n;
-	}
-
-	return v;
+void vmul(coordinate vector, coordinate * result, float n) {
+	result->x = vector.x * n;
+	result->y = vector.y * n;
+	result->z = vector.z * n;
 }
 
 /* Divide vector by a number. */
-coordinate vdiv(const coordinate vector, const float  n) {
-	coordinate v;
-	v.x = vector.x / n;
-	v.y = vector.y / n;
-	v.z = vector.z / n;
-	return v;
+void vdiv( coordinate * vector,  float n) {
+	vector->x = vector->x / n;
+	vector->y = vector->y / n;
+	vector->z = vector->z / n;
 }
 
 /* Return the Euclidean norm. */
-float  vnorm(const coordinate vector) {
-	return sqrt(vector.x * vector.x + vector.y * vector.y + vector.z * vector.z);
+void vnorm( coordinate vector, float * result) {
+	*result = sqrt(vector.x * vector.x + vector.y * vector.y + vector.z * vector.z);
 }
 
 /* Return the dot product of two vectors. */
-float  dot(const coordinate vector1, const coordinate vector2) {
-	return vector1.x * vector2.x + vector1.y * vector2.y + vector1.z * vector2.z;
+void dot( coordinate vector1,  coordinate vector2, float * result) {
+	*result = vector1.x * vector2.x + vector1.y * vector2.y + vector1.z * vector2.z;
 }
 
 /* Replace vector with its cross product with another vector. */
-coordinate cross(const coordinate vector1, const coordinate vector2) {
-	coordinate v;
-	v.x = vector1.y * vector2.z - vector1.z * vector2.y;
-	v.y = vector1.z * vector2.x - vector1.x * vector2.z;
-	v.z = vector1.x * vector2.y - vector1.y * vector2.x;
-	return v;
+void cross( coordinate vector1,  coordinate vector2, coordinate * result) {
+	result->x = vector1.y * vector2.z - vector1.z * vector2.y;
+	result->y = vector1.z * vector2.x - vector1.x * vector2.z;
+	result->z = vector1.x * vector2.y - vector1.y * vector2.x;
+}
+
+/*Calculate the distance between the point a an the point b*/
+void computeDistance(struct coordinate a, struct coordinate b, float *distance) {
+	*distance = sqrt(pow(a.x - b.x, 2) + pow(a.y - b.y, 2) + pow(a.z - b.z, 2));
+}
+
+/*add n for each value of a vector*/
+void vadd(coordinate * vector,int n) {
+	vector->x = vector->x + n;
+	vector->y = vector->y + n;
+	if (vector->z + n < 0) {
+		vector->z = vector->z + fabs(n);
+	} else {
+		vector->z = vector->z + n;
+	}
 }
 
 /* Return zero if successful, negative error otherwise.
  * The last parameter is the largest nonnegative number considered zero;
  * it is somewhat analoguous to machine epsilon (but inclusive).
  */
-int trilateration(coordinate * const result1, coordinate * const result2,
-		const coordinate p1, const float  r1, const coordinate p2,
-		const float  r2, const coordinate p3, const float  r3,
-		const float  maxzero) {
-	coordinate ex, ey, ez, t1, t2;
-	float  h, i, j, x, y, z, t;
+int trilateration(coordinate *  result1, coordinate *  result2,
+		coordinate p1,  float r1,  coordinate p2,
+		float r2,  coordinate p3,  float r3,
+		float maxzero) {
+	static coordinate ex, ey, ez;
+	static float h, i, j;
 
-	/* h = |p2 - p1|, ex = (p2 - p1) / |p2 - p1| */
-	ex = vdiff(p2, p1);
-	h = vnorm(ex);
+	/* d = |p2 - p1|, ex = (p2 - p1) / |p2 - p1| */
+	vdiff(p2, p1, &ex);
+	vnorm(ex, &h);
 	if (h <= maxzero) {
 		/* p1 and p2 are concentric. */
 		return -1;
 	}
-	ex = vdiv(ex, h);
+	vdiv(&ex, h);
 
 	/* t1 = p3 - p1, t2 = ex (ex . (p3 - p1)) */
-	t1 = vdiff(p3, p1);
-	i = dot(ex, t1);
-	t2 = vmul(ex, i);
+	vdiff(p3, p1,&ey);
+	dot(ex, ey, &i);
+	vmul(ex, &ez, i);
 
 	/* ey = (t1 - t2), t = |t1 - t2| */
-	ey = vdiff(t1, t2);
-	t = vnorm(ey);
-	if (t > maxzero) {
+	vdiff(ey, ez, &ey);
+	vnorm(ey, &j);
+	if (j > maxzero) {
 		/* ey = (t1 - t2) / |t1 - t2| */
-		ey = vdiv(ey, t);
+		vdiv(&ey, j);
 
 		/* j = ey . (p3 - p1) */
-		j = dot(ey, t1);
+		vdiff(p3, p1, &ez);
+		dot(ey, ez, &j);
 	} else
 		j = 0.0;
 
 	/* Note: t <= maxzero implies j = 0.0. */
-	if (fabs(j) <= maxzero) {
-		/* p1, p2 and p3 are colinear. */
+	//	if (fabs(j) <= maxzero) {
+	/* p1, p2 and p3 are colinear. */
 
-		/* Is point p1 + (r1 along the axis) the intersection? */
-		t2 = vsum(p1, vmul(ex, r1));
-		if (fabs(vnorm(vdiff(p2, t2)) - r2) <= maxzero
-				&& fabs(vnorm(vdiff(p3, t2)) - r3) <= maxzero) {
+	/* Is point p1 + (r1 along the axis) the intersection? */
+	/*vsum(p1, vmul(ex, r1), &ez);
+		if (fabs(vnorm(vdiff(p2, ez)) - r2) <= maxzero
+				&& fabs(vnorm(vdiff(p3, ez)) - r3) <= maxzero) {
 			/* Yes, t2 is the only intersection point. */
-			if (result1)
-				*result1 = t2;
+	/*	if (result1)
+	 *result1 = ez;
 			if (result2)
-				*result2 = t2;
+	 *result2 = ez;
 			return 0;
-		}
+		}*/
 
-		/* Is point p1 - (r1 along the axis) the intersection? */
-		t2 = vsum(p1, vmul(ex, -r1));
-		if (fabs(vnorm(vdiff(p2, t2)) - r2) <= maxzero
-				&& fabs(vnorm(vdiff(p3, t2)) - r3) <= maxzero) {
-			/* Yes, t2 is the only intersection point. */
-			if (result1)
-				*result1 = t2;
+	/* Is point p1 - (r1 along the axis) the intersection? */
+	/*ez = vsum(p1, vmul(ex, -r1));
+		if (fabs(vnorm(vdiff(p2, ez)) - r2) <= maxzero
+				&& fabs(vnorm(vdiff(p3, ez)) - r3) <= maxzero) {*/
+	/* Yes, t2 is the only intersection point. */
+	/*if (result1)
+	 *result1 = ez;
 			if (result2)
-				*result2 = t2;
+	 *result2 = ez;
 			return 0;
-		}
+		}*/
 
-		return -2;
-	}
+	/*	return -2;
+	}*/
 
 	/* ez = ex x ey */
-	ez = cross(ex, ey);
+	cross(ex, ey,&ez);
 
-	x = (r1 * r1 - r2 * r2) / (2 * h) + h / 2;
-	y = (r1 * r1 - r3 * r3 + i * i) / (2 * j) + j / 2 - x * i / j;
-	z = r1 * r1 - x * x - y * y;
-	if (z < -maxzero) {
+	h = (r1 * r1 - r2 * r2) / (2 * h) + h / 2;
+	j = (r1 * r1 - r3 * r3 + i * i) / (2 * j) + j / 2 - h * i / j;
+	i = r1 * r1 - h * h - j * j;
+	if (i < -maxzero) {
 		/* The solution is invalid. */
 		return -3;
-	} else if (z > 0.0)
-		z = sqrt(z);
+	} else if (i > 0.0)
+		i = sqrt(i);
 	else
-		z = 0.0;
+		i = 0.0;
 
 	/* t2 = p1 + x ex + y ey */
-	t2 = vsum(p1, vmul(ex, x));
-	t2 = vsum(t2, vmul(ey, y));
-
+	vmul(ex,&p2, h);
+	vsum(p1, p2,result1);
+	vmul(ey,result2, j);
+	vsum(*result1,*result2 ,result1);
+	*result2 = *result1;
+	vmul(ez,&p1,i);
 	/* result1 = p1 + x ex + y ey + z ez */
-	if (result1)
-		*result1 = vsum(t2, vmul(ez, z));
-
+	vsum(*result1, p1 ,result1);
+	vmul(ez,&p1, -i);
 	/* result1 = p1 + x ex + y ey - z ez */
-	if (result2)
-		*result2 = vsum(t2, vmul(ez, -z));
+	vsum(*result2, p1, result2);
 
 	return 0;
 }
 
-struct coordinate getResult(const coordinate result1, const coordinate result2,
-		const coordinate oldPosition) {
+/*Choose the good result between two. The good result is selected by comparing the two results (which are passed as parameters ) with the old position */
+struct coordinate getResult( coordinate result1,  coordinate result2,
+		coordinate oldPosition) {
 	if (result1.z < 0) {
 		return result2;
 	} else if (result2.z < 0) {
 		return result1;
 	} else {
-		float  dist1 = sqrt(
+		float dist1 = sqrt(
 				pow(result1.x - oldPosition.x, 2)
-						+ pow(result1.y - oldPosition.y, 2)
-						+ pow(result1.z - oldPosition.z, 2));
-		float  dist2 = sqrt(
+				+ pow(result1.y - oldPosition.y, 2)
+				+ pow(result1.z - oldPosition.z, 2));
+		float dist2 = sqrt(
 				pow(result2.x - oldPosition.x, 2)
-						+ pow(result2.y - oldPosition.y, 2)
-						+ pow(result2.z - oldPosition.z, 2));
+				+ pow(result2.y - oldPosition.y, 2)
+				+ pow(result2.z - oldPosition.z, 2));
 		if (dist1 > dist2) {
 			return result2;
 		} else {
@@ -192,106 +187,28 @@ struct coordinate getResult(const coordinate result1, const coordinate result2,
 	}
 }
 
-float  ComputeDistance(struct coordinate a, struct coordinate b) {
-	float  result = 0.0;
-	float  x = pow(a.x - b.x, 2);
-	float  y = pow(a.y - b.y, 2);
-	float  z = pow(a.z - b.z, 2);
-	result = sqrt(x + y + z);
-	return result;
-}
-
-int main(void) {
-	/*coordinate	p1, p2, p3, o1, o2;
-	 float 	r1, r2, r3;
-	 int	result;
-
-	 while (fscanf(stdin, "%lg %lg %lg %lg %lg %lg %lg %lg %lg %lg %lg %lg",
-	 &p1.x, &p1.y, &p1.z, &r1,
-	 &p2.x, &p2.y, &p2.z, &r2,
-	 &p3.x, &p3.y, &p3.z, &r3) == 12) {
-	 printf("Sphere 1: %g %g %g, radius %g\n", p1.x, p1.y, p1.z, r1);
-	 printf("Sphere 2: %g %g %g, radius %g\n", p2.x, p2.y, p2.z, r2);
-	 printf("Sphere 3: %g %g %g, radius %g\n", p3.x, p3.y, p3.z, r3);
-	 result = trilateration(&o1, &o2, p1, r1, p2, r2, p3, r3, MAXZERO);
-	 if (result)
-	 printf("No solution (%d).\n", result);
-	 else {
-	 printf("Solution 1: %g %g %g\n", o1.x, o1.y, o1.z);
-	 printf("  Distance to sphere 1 is %g (radius %g)\n", vnorm(vdiff(o1, p1)), r1);
-	 printf("  Distance to sphere 2 is %g (radius %g)\n", vnorm(vdiff(o1, p2)), r2);
-	 printf("  Distance to sphere 3 is %g (radius %g)\n", vnorm(vdiff(o1, p3)), r3);
-	 printf("Solution 2: %g %g %g\n", o2.x, o2.y, o2.z);
-	 printf("  Distance to sphere 1 is %g (radius %g)\n", vnorm(vdiff(o2, p1)), r1);
-	 printf("  Distance to sphere 2 is %g (radius %g)\n", vnorm(vdiff(o2, p2)), r2);
-	 printf("  Distance to sphere 3 is %g (radius %g)\n", vnorm(vdiff(o2, p3)), r3);
-	 }
-	 }*/
-	srand(time(NULL));
-	int maxValue = 320;
-	struct coordinate target, terms[3], oldTarget;
-	float  distance[3];
-	int i;
-	struct coordinate o1, o2, result;
-	target.x = rand() % maxValue;
-	target.y = rand() % maxValue;
-	target.z = rand() % maxValue;
-	printf(" %d \n", i);
-	int count = 0;
-	int k = 0;
+void test(coordinate terms[], coordinate * oldTarget, coordinate * target){
+	static int  k;
+	static float distance[3];
+	static struct coordinate o1, o2;
 	for (k = 0; k < 3; k++) {
-
-		terms[k].x = rand() % maxValue;
-		terms[k].y = rand() % maxValue;
-		terms[k].z = rand() % maxValue;
-		distance[k] = ComputeDistance(target, terms[k]);
-		printf("generation = ( %g , %g , %g )\n", terms[k].x, terms[k].y,
-				terms[k].z);
-
+		computeDistance(*target, terms[k], &distance[k]);
 	}
-	oldTarget = target;
-	for (i = 0; i < 1000; i++) {
+	trilateration(&o1, &o2, terms[0], distance[0], terms[1], distance[1],
+			terms[2], distance[2], MAXZERO);
+	*oldTarget  = getResult(o1, o2, *target);
+	int translate = target->x / 300;
 
-		trilateration(&o1, &o2, terms[0], distance[0], terms[1], distance[1],
-				terms[2], distance[2], MAXZERO);
-		result = getResult(o1, o2, target);
-		printf("res1 = ( %g , %g , %g )\n", o1.x, o1.y, o1.z);
-		printf("res2 = ( %g , %g , %g )\n", o2.x, o2.y, o2.z);
-		printf("roldTarget = ( %f , %f , %f )\n", oldTarget.x, oldTarget.y,
-				oldTarget.z);
-		printf("target = ( %f , %f , %f)\n", target.x, target.y, target.z);
-		printf("result = ( %f , %f , %f )\n \n \n", result.x, result.y,
-				result.z);
-
-		if ((round(result.x) == round(target.x))
-				&& (round(result.y) == round(target.y))
-				&& (round(result.z) == round(target.z))) {
-			count++;
-			printf(" === %d \n", count);
-		}
-		oldTarget = target;
-		int translate = rand() % 1000;
-		if ((translate % 2) == 0) {
-			target = vadd(target, translate);
-			terms[0] = vadd(terms[0], translate);
-			terms[1] = vadd(terms[1], translate);
-			terms[2] = vadd(terms[2], translate);
-			for (k = 0; k < 3; k++) {
-				distance[k] = ComputeDistance(target, terms[k]);
-			}
-
-		} else {
-			target = vadd(target, -translate);
-			terms[0] = vadd(terms[0], -translate);
-			terms[1] = vadd(terms[1], -translate);
-			terms[2] = vadd(terms[2], -translate);
-			for (k = 0; k < 3; k++) {
-				distance[k] = ComputeDistance(target, terms[k]);
-			}
-		}
-
+	if ((translate % 2) == 0) {
+		vadd(target, translate);
+		vadd(&terms[0], translate);
+		vadd(&terms[1], translate);
+		vadd(&terms[2], translate);
 	}
-	printf("%d reussis", count);
-
-	return 0;
+	else {
+		vadd(target, -translate);
+		vadd(&terms[0], -translate);
+		vadd(&terms[1], -translate);
+		vadd(&terms[2], -translate);
+	}
 }
